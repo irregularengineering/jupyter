@@ -1,0 +1,53 @@
+#! /bin/bash
+#
+# Pull image from Docker Cloud, start it, and attach to bash session
+#
+# Or, optionally, pass -b to build locally
+#
+# Usage:
+#   ./launch
+#  ./launch -b  # to build locally rather than pulling image from cloud
+#  ./launch -l  # to launch lab instead of notebook
+
+build_image="0"
+launch_app="notebook"
+while getopts 'bl' option; do
+    case ${option} in
+        b) build_image="1" ;;
+        l) launch_app="lab" ;;
+    esac
+done
+
+# Stop container if currently running
+if [ $(docker ps -q --filter "name=jupyter") ]; then
+    echo "Stopping jupyter"
+    echo "Stopped $(docker stop jupyter)"
+fi
+
+# Delete container if exists
+if [ $(docker ps -aq --filter "name=jupyter") ]; then
+    echo "Removing jupyter"
+    echo "Removed $(docker rm jupyter)"
+fi
+
+if [ "$build_image" == "1" ]; then
+    docker build . --tag irregularengineering/jupyter:latest
+else
+    docker pull irregularengineering/jupyter:latest
+fi
+
+docker run -d --name jupyter -v "$(pwd):/opt/jupyter" -p "8888:8888" irregularengineering/jupyter:latest \
+    jupyter $launch_app --ip=0.0.0.0 --allow-root --no-browser
+
+# Wait for Jupyter to start, then grab token
+token=""
+while [ -z "$token" ]; do
+    token="$(docker logs jupyter 2>&1 | grep -m 1 "?token=" | cut -d'=' -f2)"
+    sleep 1
+done
+
+# Open the notebook in chrome
+open "http://0.0.0.0:8888?token=$token"
+
+# Attach to bash session
+docker exec -ti jupyter bash

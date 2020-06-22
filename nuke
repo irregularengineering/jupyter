@@ -1,0 +1,24 @@
+#! /bin/bash
+#
+# Destroy all Docker things associated with jupyter
+#
+# Usage:
+#   ./nuke
+
+# Stop container if currently running
+if [ $(docker ps -q --filter "name=jupyter") ]; then
+    echo "Stopping jupyter"
+    echo "Stopped $(docker stop jupyter)"
+fi
+
+# Remove container if exists
+if [ $(docker ps -qq --filter "name=jupyter") ]; then
+    echo "Removing jupyter"
+    echo "Removing $(docker stop jupyter)"
+fi
+
+# Remove images if they exist
+if [ $(docker images -q irregularengineering/jupyter) ]; then
+    echo "Removing images"
+    echo "Removing $(docker images -q irregularengineering/jupyter)"
+fi
