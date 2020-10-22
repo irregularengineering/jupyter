@@ -2,6 +2,10 @@
 
 Plain vanilla jupyter installation.
 
+## Initial Setup
+
+Install docker from [here](https://docs.docker.com/get-docker/).
+
 ## Develop
 
 ### Do stuff

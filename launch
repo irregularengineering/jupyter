@@ -51,3 +51,6 @@ open "http://0.0.0.0:8888?token=$token"
 
 # Attach to bash session
 docker exec -ti jupyter bash
+
+# Stop container
+docker stop jupyter
